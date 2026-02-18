@@ -1,0 +1,15 @@
+@keyframes skeletonLoading {
+    0% {
+        background-color: #ccc;
+    }
+
+    100% {
+        background-color: #eee;
+    }
+}
+
+
+.skeleton {
+    border-radius: 4px;
+    animation: skeletonLoading 1s linear infinite alternate
+}

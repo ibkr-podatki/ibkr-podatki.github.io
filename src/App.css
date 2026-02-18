@@ -1,0 +1,15 @@
+#root {
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+
+
+p {
+  margin-bottom: 4px;
+  margin-top: 0;
+}
+
+.app {
+  max-width: 1024px;
+}

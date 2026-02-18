@@ -1,0 +1,28 @@
+.spoiler {
+    &.open {
+        .spoiler-icon {
+            transform: rotate(180deg);
+        }
+
+        .spoiler-content {
+            display: block;
+        }
+    }
+}
+
+
+.spoiler-button {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px;
+    cursor: pointer;
+    background-color: transparent;
+    border-radius: 4px;
+    border: 1px solid #333;
+}
+
+.spoiler-content {
+    display: none;
+}
