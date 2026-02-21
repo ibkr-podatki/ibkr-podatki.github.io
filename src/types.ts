@@ -47,14 +47,8 @@ export type ParsedStatementData = {
     years: Array<string>
 }
 
-export type TradeInLocalCurrency = {
-    symbol: string;
-    date: string;
-    quantity: number;
-    totalInOriginalCurrency: number;
-    originalCurrency: number;
-    totalInLocalCurrency: number;
-    localCurrency: string;
+export type TradeWithLocalCurrency = Trade & {
+    currencyRate: number;
 }
 
 export type DividendWithLocalCurrency = CombinedDividendData & {

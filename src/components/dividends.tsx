@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { CombinedDividendData, CurrencyData, DividendWithLocalCurrency } from '../types';
 import { Table } from './ui/table/table';
-import { getDividendCurrency, roundNumber, TAX_AMOUNT, TOTAL_TAX } from '../utils/utils';
+import { getCurrencyForDate, roundNumber, TAX_AMOUNT, TOTAL_TAX } from '../utils/utils';
 import { Spoiler } from './ui/spoiler/spoiler';
 
 type Props = {
@@ -16,7 +16,7 @@ export const Dividends = ({ dividendsData, currencyData, selectedYear }: Props) 
 
         return filteredDividendsData.map((dividend) => ({
             ...dividend,
-            currencyRate: getDividendCurrency(dividend.date, currencyData)
+            currencyRate: getCurrencyForDate(dividend.date, currencyData)
         }));
     }, [dividendsData, currencyData]);
 

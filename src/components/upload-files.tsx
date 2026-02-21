@@ -44,7 +44,7 @@ export const UploadFiles = ({ onParsedData }: Props) => {
 
             onParsedData({
                 dividends: parsedDividends.sort((a, b) => new Date(a.date) > new Date(b.date) ? -1 : 1),
-                trades: parsedTrades,
+                trades: parsedTrades.sort((a, b) => new Date(a.date) > new Date(b.date) ? -1 : 1),
                 withholdingTax: parsedWithholdingTax.sort((a, b) => new Date(a.date) > new Date(b.date) ? -1 : 1),
                 years: parsedYears.sort((a, b) => a > b ? -1 : 1)
             });
