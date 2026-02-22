@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import './App.css';
 import { UploadFiles } from './components/upload-files/upload-files';
 import type { CurrencyYearData } from './types';
-import { CalculateButton } from './components/calculate-button';
+import { CalculateButton } from './components/calculate/calculate-button';
 import { Dividends } from './components/dividends';
 import { Select } from './components/ui/select/select';
 import { Trades } from './components/trades';
@@ -31,7 +31,7 @@ function App() {
 				/>
 			)}
 
-			{!!parsedStatement?.years?.length && (
+			{!!parsedStatement?.years?.length && !!currenciesData && (
 				<Select
 					id="year-selector"
 					options={parsedStatement.years.map(year => String(year))}
