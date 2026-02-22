@@ -19,7 +19,7 @@ export const Icon = ({ icon, size = '24px', color = 'inherit', className }: Prop
 	return (
 		<React.Suspense fallback={<Skeleton width={size} height={size} />}>
 			<SvgIcon
-				className={className}
+				className={`flex-shrink-0 ${className}`}
 				style={{
 					width: size,
 					height: size,

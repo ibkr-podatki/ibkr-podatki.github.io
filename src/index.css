@@ -78,3 +78,7 @@ h6 {
 		transition: opacity 0.2s;
 	}
 }
+
+.flex-shrink-0 {
+	flex-shrink: 0;
+}

@@ -1,11 +1,14 @@
-import { getYearFromString } from "../utils/utils";
+import { getYearFromString } from '../utils/utils';
 
-export const parseYear = (doc: Document): string | undefined => {
-    const titleText = doc.querySelector('title')?.innerText;
+export const parseYear = (doc: Document): string => {
+	const titleText = doc.querySelector('title')?.innerText;
 
-    if (!titleText) {
-        return;
-    }
-    
-    return getYearFromString(titleText);
+	if (titleText) {
+		const year = getYearFromString(titleText);
+		if (year) {
+			return year;
+		}
+	}
+
+	throw new Error('Cannot parse statement year');
 };

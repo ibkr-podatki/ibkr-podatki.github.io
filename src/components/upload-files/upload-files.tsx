@@ -14,46 +14,51 @@ import { parseYear } from '../../parsers/parse-year';
 import { parseCorporateActionsTable } from '../../parsers/parse-corporate-actions';
 import './upload-files.css';
 import { Icon } from '../ui/icon';
+import { UploadedFile } from './uploaded-file';
+
+type ParsedFileInfo = { year: string; fileName: string; hasError?: boolean };
 
 type Props = {
 	onParsedData: (data: ParsedStatement) => void;
 };
 
 export const UploadFiles = ({ onParsedData }: Props) => {
-	const [error, setError] = useState<string | null>(null);
+	const [parsedFiles, setParsedFiles] = useState<Array<ParsedFileInfo>>([]);
+	const [error, setError] = useState<string | undefined>();
 
 	const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
 		const files = event.target.files;
+
 		if (!files) {
 			return;
 		}
 
-		setError(null);
+		setError(undefined);
+
+		let currentYear: string = '';
+		let currentFileName: string = '';
+		const parsesFilesInfo: Array<ParsedFileInfo> = [];
 
 		try {
-			let parsedDividends: Array<ParsedDividend> = [];
-			let parsedTrades: Array<ParsedTrade> = [];
-			let parsedWithholdingTax: Array<ParsedWithholdingTax> = [];
-			let parsedCorporateActions: Array<ParsedCorporateAction> = [];
+			const parsedDividends: Array<ParsedDividend> = [];
+			const parsedTrades: Array<ParsedTrade> = [];
+			const parsedWithholdingTax: Array<ParsedWithholdingTax> = [];
+			const parsedCorporateActions: Array<ParsedCorporateAction> = [];
 			const parsedYears: Array<string> = [];
 
 			for (const file of files) {
 				const htmlContent = await file.text();
 				const doc = stringToDocument(htmlContent);
 
-				parsedDividends = [...parsedDividends, ...parseDividendsTable(doc)];
-				parsedTrades = [...parsedTrades, ...parseTradesTable(doc)];
-				parsedWithholdingTax = [...parsedWithholdingTax, ...parseWithholdingTaxTable(doc)];
-				parsedCorporateActions = [
-					...parsedCorporateActions,
-					...parseCorporateActionsTable(doc)
-				];
+				currentFileName = file.name;
+				currentYear = parseYear(doc);
+				parsedDividends.push(...parseDividendsTable(doc));
+				parsedTrades.push(...parseTradesTable(doc));
+				parsedWithholdingTax.push(...parseWithholdingTaxTable(doc));
+				parsedYears.push(currentYear);
+				parsedCorporateActions.push(...parseCorporateActionsTable(doc));
 
-				const parsedYear = parseYear(doc);
-
-				if (parsedYear) {
-					parsedYears.push(parsedYear);
-				}
+				parsesFilesInfo.push({ year: currentYear, fileName: currentFileName });
 			}
 
 			onParsedData({
@@ -71,14 +76,18 @@ export const UploadFiles = ({ onParsedData }: Props) => {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to parse file';
 			setError(errorMessage);
 			console.error('Error parsing file:', err);
+
+			parsesFilesInfo.push({ year: currentYear, fileName: currentFileName, hasError: true });
 		}
+
+		setParsedFiles(parsesFilesInfo);
 	};
 
 	return (
-		<div>
-			<label className="file-ipload-box" htmlFor="file-upload">
+		<div className="upload-files">
+			<label className="upload-files__upload-box" htmlFor="file-upload">
 				<Icon icon="cloud-upload" size="36px" color="#ccc" />
-				<p>Upload activity statement for all years</p>
+				<p>Upload activity statements for all years</p>
 				<input
 					id="file-upload"
 					type="file"
@@ -87,6 +96,15 @@ export const UploadFiles = ({ onParsedData }: Props) => {
 					onChange={handleFileChange}
 				/>
 			</label>
+
+			{parsedFiles.map((fileInfo, i) => (
+				<UploadedFile
+					key={`${fileInfo.year}-${fileInfo.fileName}-${i}`}
+					fileName={fileInfo.fileName}
+					year={fileInfo.year}
+					hasError={fileInfo.hasError}
+				/>
+			))}
 
 			{error && (
 				<div style={{ color: 'red', marginTop: '10px' }}>Error parsing data: {error}</div>
