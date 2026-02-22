@@ -1,20 +1,31 @@
-import React from "react";
-import { Icons, type IconType } from "./icons";
-import { Skeleton } from "../skeleton/skeleton";
+import React from 'react';
+import { Icons, type IconType } from './icons';
+import { Skeleton } from '../skeleton/skeleton';
 
 type Props = {
-    icon: IconType;
-    className?: string;
-}
+	icon: IconType;
+	className?: string;
+	size?: string;
+	color?: string;
+};
 
-export const Icon = ({ icon, className }: Props) => {
-    const SvgIcon = Icons[icon];
+export const Icon = ({ icon, size = '24px', color = 'inherit', className }: Props) => {
+	const SvgIcon = Icons[icon];
 
-    if (!SvgIcon) {
-        return null;
-    }
+	if (!SvgIcon) {
+		return null;
+	}
 
-    return <React.Suspense fallback={<Skeleton width="24px" height="24px" />}>
-        <SvgIcon className={className} />
-    </React.Suspense>
-}
+	return (
+		<React.Suspense fallback={<Skeleton width={size} height={size} />}>
+			<SvgIcon
+				className={className}
+				style={{
+					width: size,
+					height: size,
+					fill: color
+				}}
+			/>
+		</React.Suspense>
+	);
+};

@@ -5,13 +5,15 @@ import type {
 	ParsedStatement,
 	ParsedTrade,
 	ParsedWithholdingTax
-} from '../parsers/types';
-import { parseDividendsTable } from '../parsers/parse-dividends';
-import { parseTradesTable } from '../parsers/parse-trades';
-import { parseWithholdingTaxTable } from '../parsers/parse-withholding-tax';
-import { stringToDocument } from '../utils/utils';
-import { parseYear } from '../parsers/parse-year';
-import { parseCorporateActionsTable } from '../parsers/parse-corporate-actions';
+} from '../../parsers/types';
+import { parseDividendsTable } from '../../parsers/parse-dividends';
+import { parseTradesTable } from '../../parsers/parse-trades';
+import { parseWithholdingTaxTable } from '../../parsers/parse-withholding-tax';
+import { stringToDocument } from '../../utils/utils';
+import { parseYear } from '../../parsers/parse-year';
+import { parseCorporateActionsTable } from '../../parsers/parse-corporate-actions';
+import './upload-files.css';
+import { Icon } from '../ui/icon';
 
 type Props = {
 	onParsedData: (data: ParsedStatement) => void;
@@ -74,7 +76,18 @@ export const UploadFiles = ({ onParsedData }: Props) => {
 
 	return (
 		<div>
-			<input type="file" accept=".htm,.html" multiple onChange={handleFileChange} />
+			<label className="file-ipload-box" htmlFor="file-upload">
+				<Icon icon="cloud-upload" size="36px" color="#ccc" />
+				<p>Upload activity statement for all years</p>
+				<input
+					id="file-upload"
+					type="file"
+					accept=".htm,.html"
+					multiple
+					onChange={handleFileChange}
+				/>
+			</label>
+
 			{error && (
 				<div style={{ color: 'red', marginTop: '10px' }}>Error parsing data: {error}</div>
 			)}

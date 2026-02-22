@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import './App.css';
-import { UploadFiles } from './components/upload-files';
+import { UploadFiles } from './components/upload-files/upload-files';
 import type { CurrencyYearData } from './types';
 import { CalculateButton } from './components/calculate-button';
 import { Dividends } from './components/dividends';

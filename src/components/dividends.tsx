@@ -73,27 +73,27 @@ export const Dividends = ({
 	const pitTable = useMemo(() => {
 		return [
 			{
-				'Komórka PIT-38': '-',
+				Komórka: '-',
 				'Suma (zł)': dividendsTotal.toFixed(2),
 				Opis: 'Suma wypłat dywidend zagranicznych - podstawa opodatkowania (wiersz pomocniczy)'
 			},
 			{
-				'Komórka PIT-38': 'G.45',
+				Komórka: 'G.45',
 				'Suma (zł)': taxTotal.toFixed(2),
 				Opis: 'Zryczałtowany podatek obliczony od przychodów (dochodów), o których mowa w art. 30a ust. 1 pkt 1–5 ustawy, uzyskanych poza granicami Rzeczypospolitej Polskiej'
 			},
 			{
-				'Komórka PIT-38': 'G.46',
+				Komórka: 'G.46',
 				'Suma (zł)': taxesPaid.toFixed(2),
 				Opis: 'Podatek zapłacony za granicą, o którym mowa w art. 30a ust. 9 ustawy'
 			},
 			{
-				'Komórka PIT-38': '-',
+				Komórka: '-',
 				'Suma (zł)': taxesToPay.toFixed(2),
 				Opis: 'Dokładna wartość podatku do dopłacenia (wiersz pomocniczy)'
 			},
 			{
-				'Komórka PIT-38': 'G.47',
+				Komórka: 'G.47',
 				'Suma (zł)': taxesToPay.toFixed(),
 				Opis: 'Różnica między zryczałtowanym podatkiem a podatkiem zapłaconym za granicą'
 			}
