@@ -7,6 +7,7 @@ import { CalculateButton } from './components/calculate-button';
 import { Dividends } from './components/dividends';
 import { Select } from './components/ui/select/select';
 import { Trades } from './components/trades';
+import { getSplitRatio, parseTicker } from './utils/utils';
 
 
 
@@ -21,10 +22,33 @@ function App() {
         // console.log(Object.groupBy(data.trades, (item) => item.symbol));
         const combinedDividendsData = getDividendsTotal(data.dividends, data.withholdingTax);
 
+        const pasedStockSplits: Array<Trade> = data.corporateActions
+            .filter(action => action.description.includes('Split'))
+            .map(action => ({
+                splitRatio: getSplitRatio(action.description),
+                symbol: parseTicker(action.description) ?? '',
+                date: action.dateTime,
+                quantity: 0,
+                tradePrice: 0,
+                closingPrice: 0,
+                proceeds: 0,
+                commissionFee: 0,
+                basis: 0,
+                realizedPL: 0,
+                mtmPL: 0,
+                code: '',
+                assetType: 'Stock split',
+            }));
+
+        const tradesDataWithoutForex = data.trades.filter(trade => trade.assetType !== 'Forex');
+        const trades = [...tradesDataWithoutForex, ...pasedStockSplits].sort((a, b) => new Date(a.date) > new Date(b.date) ? -1 : 1);
+
         setDividendsData(combinedDividendsData);
-        setTradesData(data.trades.filter(trade => trade.assetType !== 'Forex'));
+        setTradesData(trades);
         setAvailableYears(data.years);
         setSelectedYear(data.years.at(0));
+
+        console.log(trades);
     }, []);
 
     const handleCurrencyDataLoaded = useCallback((data: Record<number, CurrencyData>) => {
@@ -57,7 +81,11 @@ function App() {
 
             {
                 !!tradesData.length && !!currenciesData && selectedYear && (
-                    <Trades trades={tradesData} currenciesData={currenciesData} selectedYear={selectedYear} />
+                    <Trades 
+                        trades={tradesData} 
+                        currenciesData={currenciesData}
+                        selectedYear={selectedYear}
+                    />
                 )
             }
 

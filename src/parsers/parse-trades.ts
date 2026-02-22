@@ -1,4 +1,4 @@
-import type { Trade } from "../types";
+import type { AssetType, Trade } from "../types";
 
 export const parseTradesTable = (doc: Document): Trade[] => {
     // Find the element with id starting with tblTransactions_
@@ -7,18 +7,18 @@ export const parseTradesTable = (doc: Document): Trade[] => {
     );
 
     if (!tradesContainer) {
-        throw new Error('Trades table not found');
+        return [];
     }
 
     // Find the table inside the container
     const table = tradesContainer.querySelector('table');
     if (!table) {
-        throw new Error('Table not found in trades container');
+        return [];
     }
 
     const rows = Array.from(table.querySelectorAll('tr'));
     const trades: Trade[] = [];
-    let currentAssetType = '';
+    let currentAssetType: AssetType | undefined = undefined;
     let currentCurrency = 'USD'; // Default currency
 
     for (const row of rows) {
@@ -32,9 +32,10 @@ export const parseTradesTable = (doc: Document): Trade[] => {
         // Check if this is an asset type header row (Stocks, Forex, etc.)
         const assetCell = row.querySelector('td.header-asset');
         if (assetCell) {
-            const assetText = assetCell.textContent?.trim() || '';
+            const assetText = assetCell.textContent?.trim();
+
             if (assetText) {
-                currentAssetType = assetText;
+                currentAssetType = assetText as AssetType;
             }
             continue;
         }

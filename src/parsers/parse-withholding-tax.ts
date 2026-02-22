@@ -10,13 +10,13 @@ export const parseWithholdingTaxTable = (doc: Document): WithholdingTax[] => {
     );
 
     if (!withholdingTaxContainer) {
-        throw new Error('Withholding tax table not found');
+        return [];
     }
 
     // Find the table inside the container
     const table = withholdingTaxContainer.querySelector('table');
     if (!table) {
-        throw new Error('Table not found in withholding tax container');
+        return [];
     }
 
     const rows = Array.from(table.querySelectorAll('tr'));

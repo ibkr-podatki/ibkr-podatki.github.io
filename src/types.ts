@@ -1,3 +1,5 @@
+export type AssetType = 'Stocks' | 'Forex' | 'Stock split';
+
 export interface Trade {
     symbol: string;
     date: string;
@@ -10,8 +12,9 @@ export interface Trade {
     realizedPL: number | null;
     mtmPL: number | null;
     code: string;
-    assetType?: string;
+    assetType?: AssetType;
     currency?: string;
+    splitRatio?: number;
 }
 
 export interface Dividend {
@@ -26,6 +29,19 @@ export interface WithholdingTax {
     symbol: string;
     amount: number;
     code: string;
+    currency?: string;
+}
+
+export interface CorporateAction {
+    reportDate: string;
+    dateTime: string;
+    description: string;
+    quantity: number;
+    proceeds: number;
+    value: number;
+    realizedPL: number | null;
+    code: string;
+    assetType?: string;
     currency?: string;
 } 
 
@@ -44,7 +60,8 @@ export type ParsedStatementData = {
     dividends: Array<Dividend>;
     trades: Array<Trade>;
     withholdingTax: Array<WithholdingTax>;
-    years: Array<string>
+    years: Array<string>;
+    corporateActions: Array<CorporateAction>;
 }
 
 export type TradeWithLocalCurrency = Trade & {

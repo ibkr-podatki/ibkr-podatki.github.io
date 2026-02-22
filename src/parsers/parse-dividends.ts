@@ -9,13 +9,13 @@ export const parseDividendsTable = (doc: Document): Dividend[] => {
     );
 
     if (!dividendsContainer) {
-        throw new Error('Dividends table not found');
+        return [];
     }
 
     // Find the table inside the container
     const table = dividendsContainer.querySelector('table');
     if (!table) {
-        throw new Error('Table not found in dividends container');
+        return [];
     }
 
     const rows = Array.from(table.querySelectorAll('tr'));

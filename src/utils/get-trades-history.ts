@@ -26,6 +26,17 @@ export const getTradesHistory = (trades: Array<TradeWithLocalCurrency>) => {
 
         const {quantity, costBasis, costBasisInLocalCurrency} = symbolsHistoryMap[trade.symbol];
 
+        if (trade.assetType === 'Stock split') {
+            const splitRatio = trade.splitRatio ?? 1;
+            symbolsHistoryMap[trade.symbol] = {
+                quantity: quantity / splitRatio,
+                costBasis: costBasis / splitRatio,
+                costBasisInLocalCurrency: costBasisInLocalCurrency / splitRatio
+            }
+
+            continue;
+        }
+
         const tradeVolume = trade.quantity * trade.tradePrice - trade.commissionFee;
         const tradePriceInLocalCurrency = trade.tradePrice * trade.currencyRate;
         const comissionFeeInLocalCurrency = trade.commissionFee * trade.currencyRate;

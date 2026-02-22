@@ -30,6 +30,19 @@ export const Trades = ({trades, currenciesData, selectedYear}: Props) => {
 
     const yearTradesHistory = tradesHistory.filter(trade => trade.date.includes(selectedYear));
 
+
+    const profit = useMemo(
+        () => yearTradesHistory.reduce((acc, trade) => acc + trade.profit, 0), 
+        [yearTradesHistory]
+    );
+
+    const profitInLocalCurrency = useMemo(
+        () => yearTradesHistory.reduce((acc, trade) => acc + trade.profitInLocalCurrency, 0), 
+        [yearTradesHistory]
+    );
+    
+    console.log(yearTradesHistory);
+
     const profitLossTable = useMemo(() => {
         return yearTradesHistory.filter(trade => trade.tradeType === 'SELL').map((trade) => ({
             'Symbol': trade.symbol,

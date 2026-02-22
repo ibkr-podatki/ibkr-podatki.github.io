@@ -21,11 +21,20 @@ export const getYearFromString = (dateString: string): string | undefined => {
     return year ?? undefined;
 }
 
-// for the format "TLT(US00000000) Cash Dividend USD 0.351032 per Share - US Tax"
+// "TLT(US00000000) Cash Dividend USD 0.351032 per Share - US Tax"
 export const parseTicker = (text: string): string | undefined => {
     const match = text.match(/^([^(]+)/);
     const result = match?.at(1);
     return result ?? undefined;
+}
+
+// "SCHD(US00000000) Split 3 for 1 (SCHD, SCHWAB US DVD EQUITY ETF;"
+export const getSplitRatio = (str: string): number | undefined => {
+    const match = str.match(/Split\s+(\d+)\s+for\s+\d+/);
+    console.log(match);
+    const result = Number(match?.at(1));
+
+    return !isNaN(result) ? result : undefined
 }
 
 
