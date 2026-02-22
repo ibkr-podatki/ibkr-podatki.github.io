@@ -1,81 +1,103 @@
-import type { TradeWithLocalCurrency } from "../types";
+import type { TradeWithLocalCurrency, TradeHistoryTaxData } from '../types';
 
 type SymbolHistory = {
-    quantity: number;
-    costBasis: number;
-    costBasisInLocalCurrency: number;
-}
+	quantity: number;
+	costBasis: number;
+	costBasisInLocalCurrency: number;
+};
 
 // trades should be sorted by date
 export const getTradesHistory = (trades: Array<TradeWithLocalCurrency>) => {
-    const symbolsHistoryMap: {[symbol: string]: SymbolHistory} = {};
+	const symbolsHistoryMap: { [symbol: string]: SymbolHistory } = {};
 
-    const tradesHistory = [];
+	const tradesHistory = [];
 
-    for (let i = trades.length -1; i > -1; i--) {
-        const trade = trades[i];
-        const tradeType = trade.quantity < 0 ? 'SELL' : 'BUY';
+	for (let i = trades.length - 1; i > -1; i--) {
+		const trade = trades[i];
+		const tradeType = trade.quantity < 0 ? 'SELL' : 'BUY';
 
-        if (!symbolsHistoryMap[trade.symbol]) {
-            symbolsHistoryMap[trade.symbol] = {
-                quantity: 0,
-                costBasis: 0,
-                costBasisInLocalCurrency: 0
-            }
-        }
+		if (!symbolsHistoryMap[trade.symbol]) {
+			symbolsHistoryMap[trade.symbol] = {
+				quantity: 0,
+				costBasis: 0,
+				costBasisInLocalCurrency: 0
+			};
+		}
 
-        const {quantity, costBasis, costBasisInLocalCurrency} = symbolsHistoryMap[trade.symbol];
+		const { quantity, costBasis, costBasisInLocalCurrency } = symbolsHistoryMap[trade.symbol];
 
-        if (trade.assetType === 'Stock split') {
-            const splitRatio = trade.splitRatio ?? 1;
-            symbolsHistoryMap[trade.symbol] = {
-                quantity: quantity / splitRatio,
-                costBasis: costBasis / splitRatio,
-                costBasisInLocalCurrency: costBasisInLocalCurrency / splitRatio
-            }
+		if (trade.assetType === 'Stock split') {
+			const splitRatio = trade.splitRatio ?? 1;
+			symbolsHistoryMap[trade.symbol] = {
+				quantity: quantity / splitRatio,
+				costBasis: costBasis / splitRatio,
+				costBasisInLocalCurrency: costBasisInLocalCurrency / splitRatio
+			};
 
-            continue;
-        }
+			continue;
+		}
 
-        const tradeVolume = trade.quantity * trade.tradePrice - trade.commissionFee;
-        const tradePriceInLocalCurrency = trade.tradePrice * trade.currencyRate;
-        const comissionFeeInLocalCurrency = trade.commissionFee * trade.currencyRate;
-        const tradeVolumeInLocalCurrency = trade.quantity * tradePriceInLocalCurrency - comissionFeeInLocalCurrency;
+		const tradeVolume = trade.quantity * trade.tradePrice - trade.commissionFee;
+		const tradePriceInLocalCurrency = trade.tradePrice * trade.currencyRate;
+		const comissionFeeInLocalCurrency = trade.commissionFee * trade.currencyRate;
+		const tradeVolumeInLocalCurrency =
+			trade.quantity * tradePriceInLocalCurrency - comissionFeeInLocalCurrency;
 
-        let profit = 0;
-        let profitInLocalCurrency = 0;
+		let tradeHistoryTaxData: TradeHistoryTaxData | undefined = undefined;
 
-        if (tradeType === 'SELL') {
-            profit = -(tradeVolume - trade.quantity * costBasis);
-            profitInLocalCurrency = -(tradeVolumeInLocalCurrency - trade.quantity * costBasisInLocalCurrency);
-        }
+		if (tradeType === 'SELL') {
+			const buyingCost = -(trade.quantity * costBasis);
+			const buyingCostInLocalCurrency = -(trade.quantity * costBasisInLocalCurrency);
+			const sellingCost = -tradeVolume;
+			const sellingCostInLocalCurrency = -tradeVolumeInLocalCurrency;
+			const profit = sellingCost - buyingCost;
+			const profitInLocalCurrency = sellingCostInLocalCurrency - buyingCostInLocalCurrency;
 
-        const newQuantity = quantity + trade.quantity;
-        const newCostBasis = newQuantity === 0 ? 0 : (quantity * costBasis + tradeVolume) / (quantity + trade.quantity);
-        const newCostBasisInLocalCurrency = newQuantity === 0 ? 0 : (quantity * costBasisInLocalCurrency + tradeVolumeInLocalCurrency) / (quantity + trade.quantity);
+			tradeHistoryTaxData = {
+				buyingCost,
+				buyingCostInLocalCurrency,
+				sellingCost,
+				sellingCostInLocalCurrency,
+				profit,
+				profitInLocalCurrency
+			};
+		}
 
-        symbolsHistoryMap[trade.symbol] = {
-            quantity: newQuantity,
-            costBasis: newCostBasis,
-            costBasisInLocalCurrency: newCostBasisInLocalCurrency,
-        }
+		const newQuantity = quantity + trade.quantity;
+		const newCostBasis =
+			newQuantity === 0
+				? 0
+				: (quantity * costBasis + tradeVolume) / (quantity + trade.quantity);
+		const newCostBasisInLocalCurrency =
+			newQuantity === 0
+				? 0
+				: (quantity * costBasisInLocalCurrency + tradeVolumeInLocalCurrency) /
+					(quantity + trade.quantity);
 
-        tradesHistory.push({
-            symbol: trade.symbol,
-            date: trade.date,
-            currencyRate: trade.currencyRate,
-            tradeType,
-            tradeQuantity: trade.quantity,
-            tradePrice: trade.tradePrice,
-            tradePriceInLocalCurrency,
-            tradeComissionFee: trade.commissionFee,
-            totalQuantity: newQuantity,
-            costBasis: newCostBasis,
-            costBasisInLocalCurrency: newCostBasisInLocalCurrency,
-            profit,
-            profitInLocalCurrency,
-        });
-    }
+		symbolsHistoryMap[trade.symbol] = {
+			quantity: newQuantity,
+			costBasis: newCostBasis,
+			costBasisInLocalCurrency: newCostBasisInLocalCurrency
+		};
 
-    return tradesHistory;
-}
+		tradesHistory.push({
+			symbol: trade.symbol,
+			date: trade.date,
+			currencyRate: trade.currencyRate,
+			tradeType,
+			quantity: trade.quantity,
+			price: trade.tradePrice,
+			priceInLocalCurrency: tradePriceInLocalCurrency,
+			comissionFee: trade.commissionFee,
+			comissionFeeInLocalCurrency,
+			position: {
+				quantity: newQuantity,
+				costBasis: newCostBasis,
+				costBasisInLocalCurrency: newCostBasisInLocalCurrency
+			},
+			taxData: tradeHistoryTaxData
+		});
+	}
+
+	return tradesHistory;
+};

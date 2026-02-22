@@ -1,0 +1,19 @@
+{
+	"arrowParens": "avoid",
+	"printWidth": 100,
+	"tabWidth": 4,
+	"singleQuote": true,
+	"trailingComma": "none",
+	"semi": true,
+	"useTabs": true,
+	"overrides": [
+		{
+			"files": "*.svg",
+			"options": { "parser": "html" }
+		},
+		{
+			"files": "*.yaml",
+			"options": { "parser": "yaml", "useTabs": false, "singleQuote": false }
+		}
+	]
+}

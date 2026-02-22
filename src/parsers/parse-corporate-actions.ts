@@ -74,7 +74,7 @@ export const parseCorporateActionsTable = (doc: Document): CorporateAction[] => 
         // Parse corporate action row (8 cells: Report Date, Date/Time, Description, Quantity, Proceeds, Value, Realized P/L, Code)
         if (cells.length >= 8) {
             const reportDate = cells[0].textContent?.trim() || '';
-            const dateTime = cells[1].textContent?.trim() || '';
+            const date = cells[1].textContent?.trim() || '';
             const description = cells[2].textContent?.trim() || '';
             const quantityText = cells[3].textContent?.trim() || '';
             const proceedsText = cells[4].textContent?.trim() || '';
@@ -91,7 +91,7 @@ export const parseCorporateActionsTable = (doc: Document): CorporateAction[] => 
             if (reportDate && description) {
                 actions.push({
                     reportDate,
-                    dateTime,
+                    date,
                     description,
                     quantity: quantity ?? 0,
                     proceeds: proceeds ?? 0,
