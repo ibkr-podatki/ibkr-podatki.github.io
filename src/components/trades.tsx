@@ -1,37 +1,31 @@
 import { useMemo } from 'react';
-import type { CurrencyData, Trade, TradeWithLocalCurrency } from '../types';
-import { getCurrencyForDate, getYearFromString, roundNumber } from '../utils/utils';
+import type { CurrencyYearData } from '../types';
+import { roundNumber } from '../utils/utils';
 import { getTradesHistory } from '../utils/get-trades-history';
 import { Table } from './ui/table/table';
 import { Spoiler } from './ui/spoiler/spoiler';
+import type { ParsedCorporateAction, ParsedTrade } from '../parsers/types';
+import { getTradesWithStockSplit } from '../utils/get-trades-with-stock-split';
+
+const TAX_AMOUNT = 0.19;
 
 type Props = {
-	trades: Array<Trade>;
-	currenciesData: Record<string, CurrencyData>;
+	parsedTrades: Array<ParsedTrade>;
+	parsedCorporateActions: Array<ParsedCorporateAction>;
+	currenciesData: CurrencyYearData;
 	selectedYear: string;
 };
 
-export const Trades = ({ trades, currenciesData, selectedYear }: Props) => {
-	const taxPaidAbroad = 0;
-	const taxPercentage = 0.19;
-
-	// TODO: we can do trades history together with currencies, to avoid extra loops
-	const tradesWithCurrency: Array<TradeWithLocalCurrency> = useMemo(() => {
-		return trades.map(trade => {
-			const year = getYearFromString(trade.date);
-			const currencyYearData = year ? currenciesData[year] : undefined;
-			const formattedTradeDate = new Date(trade.date).toISOString().slice(0, 10);
-
-			return {
-				...trade,
-				currencyRate: currencyYearData
-					? getCurrencyForDate(formattedTradeDate, currencyYearData)
-					: 1
-			};
-		});
-	}, [trades, currenciesData]);
-
-	const tradesHistory = useMemo(() => getTradesHistory(tradesWithCurrency), [tradesWithCurrency]);
+export const Trades = ({
+	parsedTrades,
+	parsedCorporateActions,
+	currenciesData,
+	selectedYear
+}: Props) => {
+	const tradesHistory = useMemo(() => {
+		const tradesWithStockSplit = getTradesWithStockSplit(parsedTrades, parsedCorporateActions);
+		return getTradesHistory(tradesWithStockSplit, currenciesData);
+	}, [parsedTrades, parsedCorporateActions, currenciesData]);
 
 	const yearTradesHistory = useMemo(
 		() => tradesHistory.filter(trade => trade.date.includes(selectedYear)),
@@ -56,10 +50,11 @@ export const Trades = ({ trades, currenciesData, selectedYear }: Props) => {
 		[yearTradesHistory]
 	);
 
+	const taxPaidAbroad = 0;
 	const profitInLocalCurrency = sellVolume - buyVolume;
 
 	const taxToPay = useMemo(
-		() => (profitInLocalCurrency > 0 ? profitInLocalCurrency * taxPercentage : 0),
+		() => (profitInLocalCurrency > 0 ? profitInLocalCurrency * TAX_AMOUNT : 0),
 		[profitInLocalCurrency]
 	);
 
@@ -122,7 +117,7 @@ export const Trades = ({ trades, currenciesData, selectedYear }: Props) => {
 			},
 			{
 				Komórka: 'D.32',
-				'Suma (zł)': `${taxPercentage * 100}%`,
+				'Suma (zł)': `${TAX_AMOUNT * 100}%`,
 				Opis: 'Stawka podatku (należy podać w procentach)'
 			},
 			{

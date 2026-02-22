@@ -1,4 +1,12 @@
-import type { TradeWithLocalCurrency, TradeHistoryTaxData } from '../types';
+import {
+	type TradeHistoryTaxData,
+	type CurrencyData,
+	type StockSplit,
+	type Trade,
+	isStockSplit,
+	type TradeHistory
+} from '../types';
+import { getCurrencyForDate, getYearFromString } from './utils';
 
 type SymbolHistory = {
 	quantity: number;
@@ -7,14 +15,15 @@ type SymbolHistory = {
 };
 
 // trades should be sorted by date
-export const getTradesHistory = (trades: Array<TradeWithLocalCurrency>) => {
+export const getTradesHistory = (
+	trades: Array<Trade | StockSplit>,
+	currenciesData: Record<string, CurrencyData>
+): Array<TradeHistory> => {
 	const symbolsHistoryMap: { [symbol: string]: SymbolHistory } = {};
-
-	const tradesHistory = [];
+	const tradesHistory: Array<TradeHistory> = [];
 
 	for (let i = trades.length - 1; i > -1; i--) {
 		const trade = trades[i];
-		const tradeType = trade.quantity < 0 ? 'SELL' : 'BUY';
 
 		if (!symbolsHistoryMap[trade.symbol]) {
 			symbolsHistoryMap[trade.symbol] = {
@@ -26,7 +35,7 @@ export const getTradesHistory = (trades: Array<TradeWithLocalCurrency>) => {
 
 		const { quantity, costBasis, costBasisInLocalCurrency } = symbolsHistoryMap[trade.symbol];
 
-		if (trade.assetType === 'Stock split') {
+		if (isStockSplit(trade)) {
 			const splitRatio = trade.splitRatio ?? 1;
 			symbolsHistoryMap[trade.symbol] = {
 				quantity: quantity / splitRatio,
@@ -37,9 +46,17 @@ export const getTradesHistory = (trades: Array<TradeWithLocalCurrency>) => {
 			continue;
 		}
 
+		const tradeType = trade.quantity < 0 ? 'SELL' : 'BUY';
+		const year = getYearFromString(trade.date);
+		const currencyYearData = year ? currenciesData[year] : undefined;
+		const formattedTradeDate = new Date(trade.date).toISOString().slice(0, 10);
+		const currencyRate = currencyYearData
+			? getCurrencyForDate(formattedTradeDate, currencyYearData)
+			: 1;
+
 		const tradeVolume = trade.quantity * trade.tradePrice - trade.commissionFee;
-		const tradePriceInLocalCurrency = trade.tradePrice * trade.currencyRate;
-		const comissionFeeInLocalCurrency = trade.commissionFee * trade.currencyRate;
+		const tradePriceInLocalCurrency = trade.tradePrice * currencyRate;
+		const comissionFeeInLocalCurrency = trade.commissionFee * currencyRate;
 		const tradeVolumeInLocalCurrency =
 			trade.quantity * tradePriceInLocalCurrency - comissionFeeInLocalCurrency;
 
@@ -83,13 +100,11 @@ export const getTradesHistory = (trades: Array<TradeWithLocalCurrency>) => {
 		tradesHistory.push({
 			symbol: trade.symbol,
 			date: trade.date,
-			currencyRate: trade.currencyRate,
+			currencyRate: currencyRate,
 			tradeType,
 			quantity: trade.quantity,
 			price: trade.tradePrice,
-			priceInLocalCurrency: tradePriceInLocalCurrency,
 			comissionFee: trade.commissionFee,
-			comissionFeeInLocalCurrency,
 			position: {
 				quantity: newQuantity,
 				costBasis: newCostBasis,

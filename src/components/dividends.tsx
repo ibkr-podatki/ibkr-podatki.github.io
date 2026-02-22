@@ -1,26 +1,37 @@
 import { useMemo } from 'react';
-import type { CombinedDividendData, CurrencyData, DividendWithLocalCurrency } from '../types';
+import type { CurrencyData, Dividend } from '../types';
 import { Table } from './ui/table/table';
-import { getCurrencyForDate, roundNumber, TAX_AMOUNT, TOTAL_TAX } from '../utils/utils';
 import { Spoiler } from './ui/spoiler/spoiler';
+import type { ParsedDividend, ParsedWithholdingTax } from '../parsers/types';
+import { getDividendsData } from '../utils/get-dividends-data';
+
+export const TOTAL_TAX = 0.19; // total polish tax
+export const TAX_AMOUNT = 0.04; // how much you need to pay after withheld tax
 
 type Props = {
 	selectedYear: string;
-	dividendsData: Array<CombinedDividendData>;
+	parsedDividends: Array<ParsedDividend>;
+	parsedWitholdingTax: Array<ParsedWithholdingTax>;
 	currencyData: CurrencyData;
 };
 
-export const Dividends = ({ dividendsData, currencyData, selectedYear }: Props) => {
-	const dividends: Array<DividendWithLocalCurrency> = useMemo(() => {
-		const filteredDividendsData = dividendsData.filter(dividend =>
+export const Dividends = ({
+	parsedDividends,
+	parsedWitholdingTax,
+	currencyData,
+	selectedYear
+}: Props) => {
+	const dividends: Array<Dividend> = useMemo(() => {
+		const filteredParsedDividends = parsedDividends.filter(dividend =>
 			dividend.date.includes(selectedYear)
 		);
 
-		return filteredDividendsData.map(dividend => ({
-			...dividend,
-			currencyRate: getCurrencyForDate(dividend.date, currencyData)
-		}));
-	}, [dividendsData, selectedYear, currencyData]);
+		const filteredWitholdingTax = parsedWitholdingTax.filter(tax =>
+			tax.date.includes(selectedYear)
+		);
+
+		return getDividendsData(filteredParsedDividends, filteredWitholdingTax, currencyData);
+	}, [parsedDividends, parsedWitholdingTax, selectedYear, currencyData]);
 
 	const dividendsTotal = useMemo(() => {
 		return dividends.reduce(
@@ -29,7 +40,7 @@ export const Dividends = ({ dividendsData, currencyData, selectedYear }: Props) 
 		);
 	}, [dividends]);
 
-	const taxTotal = useMemo(() => roundNumber(dividendsTotal * TOTAL_TAX, 2), [dividendsTotal]);
+	const taxTotal = useMemo(() => dividendsTotal * TOTAL_TAX, [dividendsTotal]);
 
 	const taxesPaid = useMemo(() => {
 		return dividends.reduce(
