@@ -1,4 +1,8 @@
-import type { CurrencyData } from '../types';
+import type { CurrencyData, Dividend } from '../types';
+
+export const STOCKS_TAX_PERCENT = 0.19;
+export const DIVIDEND_TAX_PERCENT = 0.19;
+export const DOUBLE_TAXATION_TREATY_PERCENT = 0.15;
 
 export const roundNumber = (number: number, numbersAfterComma: number = 0) => {
 	const factor = Math.pow(10, numbersAfterComma);
@@ -27,7 +31,6 @@ export const parseTicker = (text: string): string | undefined => {
 // "SCHD(US00000000) Split 3 for 1 (SCHD, SCHWAB US DVD EQUITY ETF;"
 export const getSplitRatio = (str: string): number | undefined => {
 	const match = str.match(/Split\s+(\d+)\s+for\s+\d+/);
-	console.log(match);
 	const result = Number(match?.at(1));
 
 	return !isNaN(result) ? result : undefined;
@@ -67,4 +70,18 @@ export const getCurrencyForDate = (
 	}
 
 	return currencyRate;
+};
+
+// we can't just subtract paid tax from total tax,
+// because paid tax can be more that 15% treaty to avoid double taxation
+export const calculateDividendTax = (dividend: Dividend) => {
+	const totalDividendTax = dividend.amount * DIVIDEND_TAX_PERCENT * dividend.currencyRate;
+	const deductableTax = dividend.amount * DOUBLE_TAXATION_TREATY_PERCENT * dividend.currencyRate;
+	const paidTax = dividend.withheldTax * dividend.currencyRate;
+
+	if (deductableTax < paidTax) {
+		return totalDividendTax - deductableTax;
+	}
+
+	return totalDividendTax - paidTax;
 };

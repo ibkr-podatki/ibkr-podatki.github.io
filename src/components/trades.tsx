@@ -1,13 +1,11 @@
 import { useMemo } from 'react';
 import type { CurrencyYearData } from '../types';
-import { roundNumber } from '../utils/utils';
+import { roundNumber, STOCKS_TAX_PERCENT } from '../utils/utils';
 import { getTradesHistory } from '../utils/get-trades-history';
 import { Table } from './ui/table/table';
 import { Spoiler } from './ui/spoiler/spoiler';
 import type { ParsedCorporateAction, ParsedTrade } from '../parsers/types';
 import { getTradesWithStockSplit } from '../utils/get-trades-with-stock-split';
-
-const TAX_AMOUNT = 0.19;
 
 type Props = {
 	parsedTrades: Array<ParsedTrade>;
@@ -54,7 +52,7 @@ export const Trades = ({
 	const profitInLocalCurrency = sellVolume - buyVolume;
 
 	const taxToPay = useMemo(
-		() => (profitInLocalCurrency > 0 ? profitInLocalCurrency * TAX_AMOUNT : 0),
+		() => (profitInLocalCurrency > 0 ? profitInLocalCurrency * STOCKS_TAX_PERCENT : 0),
 		[profitInLocalCurrency]
 	);
 
@@ -117,7 +115,7 @@ export const Trades = ({
 			},
 			{
 				Komórka: 'D.32',
-				'Suma (zł)': `${TAX_AMOUNT * 100}%`,
+				'Suma (zł)': `${STOCKS_TAX_PERCENT * 100}%`,
 				Opis: 'Stawka podatku (należy podać w procentach)'
 			},
 			{
@@ -145,7 +143,7 @@ export const Trades = ({
 			<Table data={pitTable} />
 
 			<Spoiler title="Profit/Loss table">
-				<Table data={profitLossTable} />
+				<Table data={profitLossTable} includeCountColumn />
 			</Spoiler>
 		</>
 	);

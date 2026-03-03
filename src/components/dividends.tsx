@@ -4,9 +4,7 @@ import { Table } from './ui/table/table';
 import { Spoiler } from './ui/spoiler/spoiler';
 import type { ParsedDividend, ParsedWithholdingTax } from '../parsers/types';
 import { getDividendsData } from '../utils/get-dividends-data';
-
-export const TOTAL_TAX = 0.19; // total polish tax
-export const TAX_AMOUNT = 0.04; // how much you need to pay after withheld tax
+import { calculateDividendTax, DIVIDEND_TAX_PERCENT } from '../utils/utils';
 
 type Props = {
 	selectedYear: string;
@@ -40,7 +38,7 @@ export const Dividends = ({
 		);
 	}, [dividends]);
 
-	const taxTotal = useMemo(() => dividendsTotal * TOTAL_TAX, [dividendsTotal]);
+	const taxTotal = useMemo(() => dividendsTotal * DIVIDEND_TAX_PERCENT, [dividendsTotal]);
 
 	const taxesPaid = useMemo(() => {
 		return dividends.reduce(
@@ -49,12 +47,8 @@ export const Dividends = ({
 		);
 	}, [dividends]);
 
-	// we can't just subtract those two, because paid tax can be more that 15% treaty for double taxation avoid
 	const taxesToPay = useMemo(() => {
-		return dividends.reduce(
-			(acc, dividend) => acc + dividend.amount * TAX_AMOUNT * dividend.currencyRate,
-			0
-		);
+		return dividends.reduce((acc, dividend) => acc + calculateDividendTax(dividend), 0);
 	}, [dividends]);
 
 	const dividendsTable = useMemo(() => {
@@ -64,9 +58,9 @@ export const Dividends = ({
 			'Amount before tax': `${(dividend.amount * dividend.currencyRate).toFixed(2)}zł (${dividend.amount.toFixed(2)} ${dividend.currency})`,
 			'Paid tax': `${(dividend.withheldTax * dividend.currencyRate).toFixed(2)}zł (${dividend.withheldTax.toFixed(2)} ${dividend.currency})`,
 			'Paid Tax %': `${dividend.taxPercentage}%`,
-			'Amount after tax': `${(dividend.withheldTax * dividend.amountAfterTax).toFixed(2)}zł (${dividend.amountAfterTax.toFixed(2)} ${dividend.currency})`,
+			'Amount after tax': `${(dividend.amountAfterTax * dividend.currencyRate).toFixed(2)}zł (${dividend.amountAfterTax.toFixed(2)} ${dividend.currency})`,
 			'Currency Rate': `${dividend.currencyRate.toFixed(2)}`,
-			'To pay (4%)': `${(dividend.amount * TAX_AMOUNT * dividend.currencyRate).toFixed(2)}zł`
+			'To pay': `${calculateDividendTax(dividend).toFixed(2)}zł`
 		}));
 	}, [dividends]);
 
@@ -110,19 +104,18 @@ export const Dividends = ({
 
 			<p>
 				<i>
-					You must pay 19% from Dividend taxes. However, most of stock exchanges withhold
-					their own taxes. To{' '}
+					You must pay 19% tax from dividends in Poland. However, sometimes you can reduce
+					it down to 4% to{' '}
 					<a href="https://www.biznes.gov.pl/pl/portal/00229#7" target="_blank">
 						avoid double taxation
-					</a>{' '}
-					you should pay 19% - 15% = 4% tax
+					</a>
 				</i>
 			</p>
 
 			<Table data={pitTable} />
 
 			<Spoiler title={<b>Tabela dywidendów</b>}>
-				<Table data={dividendsTable} />
+				<Table data={dividendsTable} includeCountColumn />
 			</Spoiler>
 		</>
 	);
