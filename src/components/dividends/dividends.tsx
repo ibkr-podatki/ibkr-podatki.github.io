@@ -120,7 +120,7 @@ export const Dividends = ({
 			<h3>Dywidendy</h3>
 
 			<p className="text-center">
-				W deklaracje e-PIT uzupełnić tylko <b>G.47 i G.48</b>
+				W formularze uzupełnić tylko <b>G.47 i G.48</b>
 			</p>
 
 			<Table data={pitTable} />

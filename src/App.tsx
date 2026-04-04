@@ -55,6 +55,13 @@ function App() {
 						setSelectedYear={setSelectedYear}
 					/>
 
+					<p className="text-center">
+						Formularz PIT-38 można złożyć na{' '}
+						<a href="https://epit.podatki.gov.pl" target="_blank">
+							https://epit.podatki.gov.pl
+						</a>
+					</p>
+
 					<PrintPage />
 				</div>
 			)}

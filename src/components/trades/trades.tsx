@@ -139,13 +139,13 @@ export const Trades = ({
 			<h3>Akcje</h3>
 
 			<p className="text-center">
-				W deklaracje e-PIT uzupełnić tylko <b>G.22 i G.23</b>
+				W formularze uzupełnić tylko <b>C.22 i C.23</b>
 			</p>
 
 			<Table data={pitTable} />
 
 			{!!yearTradesHistory.length && (
-				<Spoiler title="Profit/Loss table" className="no-print mt-4 mb-4">
+				<Spoiler title="Tabela dochodów i strat" className="no-print mt-4 mb-4">
 					<Table data={profitLossTable} includeCountColumn />
 				</Spoiler>
 			)}
