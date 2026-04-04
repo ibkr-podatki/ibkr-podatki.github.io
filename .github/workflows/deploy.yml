@@ -24,9 +24,6 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
-            - name: Debug node_modules
-              run: ls node_modules/.bin
-
             - name: Build
               run: npm run build
 
