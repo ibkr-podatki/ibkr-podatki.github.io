@@ -29,14 +29,14 @@ function App() {
 
 					<UploadFiles onParsedData={handleStatementParse} />
 
-					<StatementHint />
-
 					{!!parsedStatement?.years?.length && (
 						<CalculateButton
 							years={parsedStatement.years}
 							onCurrenciesDataLoaded={setCurrenciesData}
 						/>
 					)}
+
+					<StatementHint />
 				</>
 			)}
 

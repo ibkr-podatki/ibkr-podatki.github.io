@@ -3,10 +3,6 @@
 	line-height: 1.5;
 	font-weight: 400;
 
-	color-scheme: light dark;
-	color: rgba(255, 255, 255, 0.87);
-	background-color: #242424;
-
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
@@ -107,5 +103,16 @@ h6 {
 
 	.print-only {
 		display: revert;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	html,
+	img {
+		filter: invert(1);
+	}
+
+	html {
+		background-color: white;
 	}
 }
