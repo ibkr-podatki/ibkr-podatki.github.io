@@ -88,9 +88,11 @@ export const UploadFiles = ({ onParsedData }: Props) => {
 			<label className="upload-files__upload-box" htmlFor="file-upload">
 				<Icon icon="cloud-upload" size="36px" color="#ccc" />
 				<p className="text-center">
-					Upload activity statements for all years
+					Wybierz "Activity statement" za wszystkie lata
 					<br />
-					<i>*htm, html format</i>
+					<i>
+						<b>*htm, *html</b>
+					</i>
 				</p>
 				<input
 					id="file-upload"

@@ -7,6 +7,7 @@ import { Dividends } from './components/dividends/dividends';
 import { Trades } from './components/trades/trades';
 import type { ParsedStatement } from './parsers/types';
 import { YearSelector } from './components/year-selector/year-selector';
+import { StatementHint } from './components/statement-hint/statement-hint';
 
 function App() {
 	const [parsedStatement, setParsedStatement] = useState<ParsedStatement | undefined>();
@@ -27,6 +28,8 @@ function App() {
 					<h1>Rozlicz podatki Interactive Brokers</h1>
 
 					<UploadFiles onParsedData={handleStatementParse} />
+
+					<StatementHint />
 
 					{!!parsedStatement?.years?.length && (
 						<CalculateButton
