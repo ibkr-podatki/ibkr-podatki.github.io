@@ -11,7 +11,7 @@ export const YearSelector = ({ years, selectedYear, setSelectedYear }: Props) =>
 	return (
 		<div className="year-selector__container">
 			<h1>
-				PIT-38 <span className="print-only">{selectedYear}</span>
+				Raport podatkowy do PIT-38 <span className="print-only">{selectedYear}</span>
 			</h1>
 			<Select
 				options={years}
