@@ -82,3 +82,30 @@ h6 {
 .flex-shrink-0 {
 	flex-shrink: 0;
 }
+
+.mt-4 {
+	margin-top: 1.5rem;
+}
+
+.mb-4 {
+	margin-bottom: 1.5rem;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.print-only {
+	display: none;
+}
+
+@media print {
+	.no-print,
+	.no-print * {
+		display: none;
+	}
+
+	.print-only {
+		display: revert;
+	}
+}

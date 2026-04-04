@@ -1,0 +1,7 @@
+.number-cell {
+	white-space: nowrap;
+}
+
+.number-cell__group + .number-cell__group {
+	margin-inline-start: 0.2em;
+}

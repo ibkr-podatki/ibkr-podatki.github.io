@@ -1,0 +1,5 @@
+select.select {
+	height: 32px;
+	cursor: pointer;
+	padding-inline: 4px;
+}

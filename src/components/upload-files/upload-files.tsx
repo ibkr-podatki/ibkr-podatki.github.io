@@ -9,12 +9,12 @@ import type {
 import { parseDividendsTable } from '../../parsers/parse-dividends';
 import { parseTradesTable } from '../../parsers/parse-trades';
 import { parseWithholdingTaxTable } from '../../parsers/parse-withholding-tax';
-import { stringToDocument } from '../../utils/utils';
 import { parseYear } from '../../parsers/parse-year';
 import { parseCorporateActionsTable } from '../../parsers/parse-corporate-actions';
 import './upload-files.css';
 import { Icon } from '../ui/icon';
 import { UploadedFile } from './uploaded-file';
+import { stringToDocument } from './utils';
 
 type ParsedFileInfo = { year: string; fileName: string; hasError?: boolean };
 
@@ -84,10 +84,14 @@ export const UploadFiles = ({ onParsedData }: Props) => {
 	};
 
 	return (
-		<div className="upload-files">
+		<div className="upload-files no-print">
 			<label className="upload-files__upload-box" htmlFor="file-upload">
 				<Icon icon="cloud-upload" size="36px" color="#ccc" />
-				<p>Upload activity statements for all years</p>
+				<p className="text-center">
+					Upload activity statements for all years
+					<br />
+					<i>*htm, html format</i>
+				</p>
 				<input
 					id="file-upload"
 					type="file"

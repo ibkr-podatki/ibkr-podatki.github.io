@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
-import type { CurrencyData, Dividend } from '../types';
-import { Table } from './ui/table/table';
-import { Spoiler } from './ui/spoiler/spoiler';
-import type { ParsedDividend, ParsedWithholdingTax } from '../parsers/types';
-import { getDividendsData } from '../utils/get-dividends-data';
-import { calculateDividendTax, DIVIDEND_TAX_PERCENT } from '../utils/utils';
+import type { CurrencyData, Dividend } from '../../types';
+import { Table } from '../ui/table/table';
+import { Spoiler } from '../ui/spoiler/spoiler';
+import type { ParsedDividend, ParsedWithholdingTax } from '../../parsers/types';
+import { getDividendsData } from '../../utils/get-dividends-data';
+import { calculateDeductableTax, calculateDividendTax, DIVIDEND_TAX_PERCENT } from './utils';
+import { NumberCell } from '../ui/table/cells/number-cell/number-cell';
 
 type Props = {
 	selectedYear: string;
@@ -40,15 +41,15 @@ export const Dividends = ({
 
 	const taxTotal = useMemo(() => dividendsTotal * DIVIDEND_TAX_PERCENT, [dividendsTotal]);
 
-	const taxesPaid = useMemo(() => {
+	const deductableTax = useMemo(() => {
+		return dividends.reduce((acc, dividend) => acc + calculateDeductableTax(dividend), 0);
+	}, [dividends]);
+
+	const taxesPaidAbroad = useMemo(() => {
 		return dividends.reduce(
 			(acc, dividend) => acc + dividend.withheldTax * dividend.currencyRate,
 			0
 		);
-	}, [dividends]);
-
-	const taxesToPay = useMemo(() => {
-		return dividends.reduce((acc, dividend) => acc + calculateDividendTax(dividend), 0);
 	}, [dividends]);
 
 	const dividendsTable = useMemo(() => {
@@ -68,55 +69,67 @@ export const Dividends = ({
 		return [
 			{
 				Komórka: '-',
-				'Suma (zł)': dividendsTotal.toFixed(2),
+				'Suma (zł)': <NumberCell number={dividendsTotal} />,
 				Opis: 'Suma wypłat dywidend zagranicznych - podstawa opodatkowania (wiersz pomocniczy)'
 			},
 			{
-				Komórka: 'G.45',
-				'Suma (zł)': taxTotal.toFixed(2),
-				Opis: 'Zryczałtowany podatek obliczony od przychodów (dochodów), o których mowa w art. 30a ust. 1 pkt 1–5 ustawy, uzyskanych poza granicami Rzeczypospolitej Polskiej'
+				Komórka: <b>G.47</b>,
+				'Suma (zł)': (
+					<b>
+						<NumberCell number={taxTotal} />
+					</b>
+				),
+				Opis: (
+					<b>
+						Zryczałtowany podatek obliczony od przychodów (dochodów), o których mowa w
+						art. 30a ust. 1 pkt 1-5 ustawy, uzyskanych poza granicami Rzeczypospolitej
+						Polskiej
+					</b>
+				)
 			},
 			{
-				Komórka: 'G.46',
-				'Suma (zł)': taxesPaid.toFixed(2),
-				Opis: 'Podatek zapłacony za granicą, o którym mowa w art. 30a ust. 9 ustawy'
+				Komórka: <b>G.48</b>,
+				'Suma (zł)': (
+					<b>
+						<NumberCell number={deductableTax} />
+					</b>
+				),
+				Opis: (
+					<b>
+						Podatek zapłacony za granicą, o którym mowa w art. 30a ust. 9 ustawy
+						(Podatek do odliczenia, zapłacony za granicą na podstawie stawek podatkowych
+						z umów o unikaniu podwójnego opodatkowania)
+					</b>
+				)
 			},
 			{
 				Komórka: '-',
-				'Suma (zł)': taxesToPay.toFixed(2),
-				Opis: 'Dokładna wartość podatku do dopłacenia (wiersz pomocniczy)'
+				'Suma (zł)': <NumberCell number={taxesPaidAbroad} />,
+				Opis: 'Podatek zapłacony za granicą'
 			},
 			{
-				Komórka: 'G.47',
-				'Suma (zł)': taxesToPay.toFixed(),
+				Komórka: 'G.49',
+				'Suma (zł)': <NumberCell number={taxTotal - deductableTax} />,
 				Opis: 'Różnica między zryczałtowanym podatkiem a podatkiem zapłaconym za granicą'
 			}
 		];
-	}, [dividendsTotal, taxTotal, taxesPaid, taxesToPay]);
-
-	if (!dividends.length) {
-		return null;
-	}
+	}, [dividendsTotal, taxTotal, taxesPaidAbroad, deductableTax]);
 
 	return (
 		<>
-			<h3>PIT-38 - Dywidendy</h3>
+			<h3>Dywidendy</h3>
 
-			<p>
-				<i>
-					You must pay 19% tax from dividends in Poland. However, sometimes you can reduce
-					it down to 4% to{' '}
-					<a href="https://www.biznes.gov.pl/pl/portal/00229#7" target="_blank">
-						avoid double taxation
-					</a>
-				</i>
+			<p className="text-center">
+				W deklaracje e-PIT uzupełnić tylko <b>G.47 i G.48</b>
 			</p>
 
 			<Table data={pitTable} />
 
-			<Spoiler title={<b>Tabela dywidendów</b>}>
-				<Table data={dividendsTable} includeCountColumn />
-			</Spoiler>
+			{!!dividends.length && (
+				<Spoiler title="Tabela dywidendów" className="no-print mt-4 mb-4">
+					<Table data={dividendsTable} includeCountColumn />
+				</Spoiler>
+			)}
 		</>
 	);
 };

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import type { CurrencyData } from '../../types';
-import { getCurrencyData } from '../../utils/utils';
+import { fetchCurrencyData } from '../../utils/utils';
 import { Button } from '../ui/button/button';
 import './calculate-button.css';
 
@@ -15,7 +15,7 @@ export const CalculateButton = ({ years, onCurrenciesDataLoaded }: Props) => {
 	const handleClick = useCallback(async () => {
 		try {
 			const currenciesData = await Promise.all(
-				years.map(year => getCurrencyData(year, 'USD'))
+				years.map(year => fetchCurrencyData(year, 'USD'))
 			);
 
 			const yearToCurrency: Record<string, CurrencyData> = {};

@@ -1,6 +1,14 @@
 import type { ParsedCorporateAction, ParsedTrade } from '../parsers/types';
 import { type StockSplit, type Trade } from '../types';
-import { getSplitRatio, parseTicker } from './utils';
+import { parseTicker } from './utils';
+
+// "SCHD(US00000000) Split 3 for 1 (SCHD, SCHWAB US DVD EQUITY ETF;"
+const getSplitRatio = (str: string): number | undefined => {
+	const match = str.match(/Split\s+(\d+)\s+for\s+\d+/);
+	const result = Number(match?.at(1));
+
+	return !isNaN(result) ? result : undefined;
+};
 
 export const getTradesWithStockSplit = (
 	trades: Array<ParsedTrade>,

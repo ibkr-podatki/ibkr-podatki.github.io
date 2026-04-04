@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
-import type { CurrencyYearData } from '../types';
-import { roundNumber, STOCKS_TAX_PERCENT } from '../utils/utils';
-import { getTradesHistory } from '../utils/get-trades-history';
-import { Table } from './ui/table/table';
-import { Spoiler } from './ui/spoiler/spoiler';
-import type { ParsedCorporateAction, ParsedTrade } from '../parsers/types';
-import { getTradesWithStockSplit } from '../utils/get-trades-with-stock-split';
+import type { CurrencyYearData } from '../../types';
+import { roundNumber, STOCKS_TAX_PERCENT } from '../../utils/utils';
+import { getTradesHistory } from '../../utils/get-trades-history';
+import { Table } from '../ui/table/table';
+import { Spoiler } from '../ui/spoiler/spoiler';
+import type { ParsedCorporateAction, ParsedTrade } from '../../parsers/types';
+import { getTradesWithStockSplit } from '../../utils/get-trades-with-stock-split';
+import { NumberCell } from '../ui/table/cells/number-cell/number-cell';
 
 type Props = {
 	parsedTrades: Array<ParsedTrade>;
@@ -56,6 +57,15 @@ export const Trades = ({
 		[profitInLocalCurrency]
 	);
 
+	const profit = useMemo(
+		() => (profitInLocalCurrency > 0 ? profitInLocalCurrency : 0),
+		[profitInLocalCurrency]
+	);
+	const loss = useMemo(
+		() => (profitInLocalCurrency > 0 ? 0 : profitInLocalCurrency),
+		[profitInLocalCurrency]
+	);
+
 	const profitLossTable = useMemo(() => {
 		return yearTradesHistory
 			.filter(trade => trade.tradeType === 'SELL')
@@ -69,48 +79,36 @@ export const Trades = ({
 	const pitTable = useMemo(() => {
 		return [
 			{
-				Komórka: 'C.20',
-				'Suma (zł)': 'Należy wykazać sumę kwotę z poz. 35 z wszystkich PIT-8C',
-				Opis: 'Przychody wykazane w części D informacji PIT-8C'
+				Komórka: <b>C.22</b>,
+				'Suma (zł)': (
+					<b>
+						<NumberCell number={sellVolume} />
+					</b>
+				),
+				Opis: <b>Inne przychody - Przychód</b>
 			},
 			{
-				Komórka: 'C.21',
-				'Suma (zł)': 'Należy wykazać sumę kwotę z poz. 36 z wszystkich PIT-8C',
-				Opis: 'Przychody wykazane w części D informacji PIT-8C'
-			},
-			{
-				Komórka: 'C.22',
-				'Suma (zł)': sellVolume.toFixed(2),
-				Opis: 'Inne przychody / Przychód'
-			},
-			{
-				Komórka: 'C.23',
-				'Suma (zł)': buyVolume.toFixed(2),
-				Opis: 'Inne przychody / Koszty uzyskania przychodów'
-			},
-			{
-				Komórka: 'C.26',
-				'Suma (zł)': sellVolume.toFixed(2),
-				Opis: 'Razem (suma kwot z wierszy 1 do 2) / Przychód'
-			},
-			{
-				Komórka: 'C.27',
-				'Suma (zł)': buyVolume.toFixed(2),
-				Opis: 'Razem (suma kwot z wierszy 1 do 2) / Koszty uzyskania przychodów'
+				Komórka: <b>C.23</b>,
+				'Suma (zł)': (
+					<b>
+						<NumberCell number={buyVolume} />
+					</b>
+				),
+				Opis: <b>Inne przychody - Koszty uzyskania przychodów</b>
 			},
 			{
 				Komórka: 'C.28',
-				'Suma (zł)': profitInLocalCurrency > 0 ? profitInLocalCurrency.toFixed(2) : '-',
+				'Suma (zł)': profit ? <NumberCell number={profit} /> : '-',
 				Opis: 'Dochód (b-c)'
 			},
 			{
 				Komórka: 'C.29',
-				'Suma (zł)': profitInLocalCurrency < 0 ? profitInLocalCurrency.toFixed(2) : '-',
+				'Suma (zł)': loss ? <NumberCell number={loss} /> : '-',
 				Opis: 'Strata (c-b)'
 			},
 			{
 				Komórka: 'D.31',
-				'Suma (zł)': profitInLocalCurrency.toFixed(),
+				'Suma (zł)': <NumberCell number={profit} />,
 				Opis: 'Podstawa obliczenia podatku (po zaokrągleniu do pełnych złotch)'
 			},
 			{
@@ -120,31 +118,37 @@ export const Trades = ({
 			},
 			{
 				Komórka: 'D.33',
-				'Suma (zł)': taxToPay.toFixed(2),
+				'Suma (zł)': <NumberCell number={taxToPay} />,
 				Opis: 'Podatek od dochodów, o których mowa w art. 30b ust. 1 ustawy'
 			},
 			{
 				Komórka: 'D.34',
-				'Suma (zł)': taxPaidAbroad.toFixed(2),
+				'Suma (zł)': <NumberCell number={taxPaidAbroad} />,
 				Opis: 'Podatek zapłacony za granicą, o którym mowa w art. 30b ust. 5a i 5b ustawy'
 			},
 			{
-				Komórka: 'D.34',
-				'Suma (zł)': taxToPay.toFixed(),
+				Komórka: 'D.35',
+				'Suma (zł)': <NumberCell number={Math.round(taxToPay)} />,
 				Opis: 'Podatek należny (po zaokrągleniu do pełnych złotych)	'
 			}
 		];
-	}, [profitInLocalCurrency, taxToPay, buyVolume, sellVolume]);
+	}, [taxToPay, buyVolume, sellVolume, profit, loss]);
 
 	return (
 		<>
-			<h3>PIT-38 - Akcje</h3>
+			<h3>Akcje</h3>
+
+			<p className="text-center">
+				W deklaracje e-PIT uzupełnić tylko <b>G.22 i G.23</b>
+			</p>
 
 			<Table data={pitTable} />
 
-			<Spoiler title="Profit/Loss table">
-				<Table data={profitLossTable} includeCountColumn />
-			</Spoiler>
+			{!!yearTradesHistory.length && (
+				<Spoiler title="Profit/Loss table" className="no-print mt-4 mb-4">
+					<Table data={profitLossTable} includeCountColumn />
+				</Spoiler>
+			)}
 		</>
 	);
 };

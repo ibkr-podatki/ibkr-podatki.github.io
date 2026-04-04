@@ -1,17 +1,11 @@
-import type { CurrencyData, Dividend } from '../types';
+import type { CurrencyData } from '../types';
 
 export const STOCKS_TAX_PERCENT = 0.19;
-export const DIVIDEND_TAX_PERCENT = 0.19;
 export const DOUBLE_TAXATION_TREATY_PERCENT = 0.15;
 
 export const roundNumber = (number: number, numbersAfterComma: number = 0) => {
 	const factor = Math.pow(10, numbersAfterComma);
 	return Math.round(number * factor) / factor;
-};
-
-export const stringToDocument = (htmlContent: string): Document => {
-	const parser = new DOMParser();
-	return parser.parseFromString(htmlContent, 'text/html');
 };
 
 export const getYearFromString = (dateString: string): string | undefined => {
@@ -21,22 +15,14 @@ export const getYearFromString = (dateString: string): string | undefined => {
 	return year ?? undefined;
 };
 
-// "TLT(US00000000) Cash Dividend USD 0.351032 per Share - US Tax"
+// string example: "TLT(US00000000) Cash Dividend USD 0.351032 per Share - US Tax"
 export const parseTicker = (text: string): string | undefined => {
 	const match = text.match(/^([^(]+)/);
 	const result = match?.at(1);
 	return result ?? undefined;
 };
 
-// "SCHD(US00000000) Split 3 for 1 (SCHD, SCHWAB US DVD EQUITY ETF;"
-export const getSplitRatio = (str: string): number | undefined => {
-	const match = str.match(/Split\s+(\d+)\s+for\s+\d+/);
-	const result = Number(match?.at(1));
-
-	return !isNaN(result) ? result : undefined;
-};
-
-export const getCurrencyData = async (
+export const fetchCurrencyData = async (
 	year: string,
 	currency: string = 'USD'
 ): Promise<CurrencyData> => {
@@ -70,18 +56,4 @@ export const getCurrencyForDate = (
 	}
 
 	return currencyRate;
-};
-
-// we can't just subtract paid tax from total tax,
-// because paid tax can be more that 15% treaty to avoid double taxation
-export const calculateDividendTax = (dividend: Dividend) => {
-	const totalDividendTax = dividend.amount * DIVIDEND_TAX_PERCENT * dividend.currencyRate;
-	const deductableTax = dividend.amount * DOUBLE_TAXATION_TREATY_PERCENT * dividend.currencyRate;
-	const paidTax = dividend.withheldTax * dividend.currencyRate;
-
-	if (deductableTax < paidTax) {
-		return totalDividendTax - deductableTax;
-	}
-
-	return totalDividendTax - paidTax;
 };
