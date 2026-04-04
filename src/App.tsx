@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './App.css';
 import { UploadFiles } from './components/upload-files/upload-files';
 import type { CurrencyYearData } from './types';
@@ -8,6 +8,7 @@ import { Trades } from './components/trades/trades';
 import type { ParsedStatement } from './parsers/types';
 import { YearSelector } from './components/year-selector/year-selector';
 import { StatementHint } from './components/statement-hint/statement-hint';
+import { PrintPage } from './components/print-page/print-page';
 
 function App() {
 	const [parsedStatement, setParsedStatement] = useState<ParsedStatement | undefined>();
@@ -18,6 +19,12 @@ function App() {
 		setParsedStatement(data);
 		setSelectedYear(data.years.at(0));
 	}, []);
+
+	useEffect(() => {
+		if (selectedYear) {
+			document.title = `IBKR Raport podatkowy ${selectedYear}`;
+		}
+	}, [selectedYear]);
 
 	const isShowYearSelector = !!parsedStatement?.years?.length && !!currenciesData;
 
@@ -41,11 +48,15 @@ function App() {
 			)}
 
 			{isShowYearSelector && (
-				<YearSelector
-					years={parsedStatement.years}
-					selectedYear={selectedYear}
-					setSelectedYear={setSelectedYear}
-				/>
+				<div className="position-relative">
+					<YearSelector
+						years={parsedStatement.years}
+						selectedYear={selectedYear}
+						setSelectedYear={setSelectedYear}
+					/>
+
+					<PrintPage />
+				</div>
 			)}
 
 			{isShowYearSelector && selectedYear && (

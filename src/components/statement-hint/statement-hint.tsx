@@ -18,7 +18,7 @@ export const StatementHint = () => {
 
 			{isShowHint && (
 				<div>
-					<ul>
+					<ol className="mb-4">
 						<li>Zaloguj się do Interactive Brokers</li>
 						<li>
 							Wybierz Performance & Reports &rarr; Statements &rarr; Activity
@@ -28,9 +28,9 @@ export const StatementHint = () => {
 						<li>
 							Pobierz HTML Statement dla <b>wszystkich lat</b>, które są dostępne
 						</li>
+					</ol>
 
-						<img className="statement-hint__img" src={HintImage} alt="" />
-					</ul>
+					<img className="statement-hint__img" src={HintImage} alt="" />
 				</div>
 			)}
 		</>
