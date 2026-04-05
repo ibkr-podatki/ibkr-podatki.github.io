@@ -11,6 +11,7 @@ import { parseTradesTable } from '../../parsers/parse-trades';
 import { parseWithholdingTaxTable } from '../../parsers/parse-withholding-tax';
 import { parseYear } from '../../parsers/parse-year';
 import { parseCorporateActionsTable } from '../../parsers/parse-corporate-actions';
+import { collectStatementCurrencies } from '../../parsers/collect-statement-currencies';
 import './upload-files.css';
 import { Icon } from '../ui/icon';
 import { UploadedFile } from './uploaded-file';
@@ -61,6 +62,8 @@ export const UploadFiles = ({ onParsedData }: Props) => {
 				parsesFilesInfo.push({ year: currentYear, fileName: currentFileName });
 			}
 
+			const yearsSorted = parsedYears.sort((a, b) => (a > b ? -1 : 1));
+
 			onParsedData({
 				dividends: parsedDividends.sort((a, b) =>
 					new Date(a.date) > new Date(b.date) ? -1 : 1
@@ -69,8 +72,9 @@ export const UploadFiles = ({ onParsedData }: Props) => {
 				withholdingTax: parsedWithholdingTax.sort((a, b) =>
 					new Date(a.date) > new Date(b.date) ? -1 : 1
 				),
-				years: parsedYears.sort((a, b) => (a > b ? -1 : 1)),
-				corporateActions: parsedCorporateActions
+				years: yearsSorted,
+				corporateActions: parsedCorporateActions,
+				currencies: collectStatementCurrencies(parsedTrades, parsedDividends, yearsSorted)
 			});
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to parse file';

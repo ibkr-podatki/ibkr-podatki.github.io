@@ -11,13 +11,13 @@ type Props = {
 	selectedYear: string;
 	parsedDividends: Array<ParsedDividend>;
 	parsedWitholdingTax: Array<ParsedWithholdingTax>;
-	currencyData: CurrencyData;
+	currencyDataByCode: Record<string, CurrencyData>;
 };
 
 export const Dividends = ({
 	parsedDividends,
 	parsedWitholdingTax,
-	currencyData,
+	currencyDataByCode,
 	selectedYear
 }: Props) => {
 	const dividends: Array<Dividend> = useMemo(() => {
@@ -29,8 +29,8 @@ export const Dividends = ({
 			tax.date.includes(selectedYear)
 		);
 
-		return getDividendsData(filteredParsedDividends, filteredWitholdingTax, currencyData);
-	}, [parsedDividends, parsedWitholdingTax, selectedYear, currencyData]);
+		return getDividendsData(filteredParsedDividends, filteredWitholdingTax, currencyDataByCode);
+	}, [parsedDividends, parsedWitholdingTax, selectedYear, currencyDataByCode]);
 
 	const dividendsTotal = useMemo(() => {
 		return dividends.reduce(

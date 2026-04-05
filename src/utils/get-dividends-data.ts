@@ -23,7 +23,7 @@ const groupData = (dividends: Array<ParsedDividend> | Array<ParsedWithholdingTax
 export const getDividendsData = (
 	dividendsData: Array<ParsedDividend>,
 	withholdingTaxData: Array<ParsedWithholdingTax>,
-	currencyData: CurrencyData
+	currencyDataByCode: Record<string, CurrencyData>
 ): Array<Dividend> => {
 	// though dividends could be paid in one day, they may have separate records
 	const groupedDividends = groupData(dividendsData);
@@ -41,6 +41,10 @@ export const getDividendsData = (
 			})?.amount ?? 0
 		);
 
+		const code = dividend.currency ?? 'USD';
+		const currencyData = currencyDataByCode[code];
+		const currencyRate = currencyData ? getCurrencyForDate(dividend.date, currencyData) : 1;
+
 		return {
 			symbol: dividend.symbol,
 			date: dividend.date,
@@ -49,7 +53,7 @@ export const getDividendsData = (
 			amountAfterTax: roundNumber(dividend.amount - withheldTax, 2),
 			taxPercentage: Math.abs(roundNumber((withheldTax / dividend.amount) * 100)),
 			currency: dividend.currency,
-			currencyRate: getCurrencyForDate(dividend.date, currencyData)
+			currencyRate
 		};
 	});
 };

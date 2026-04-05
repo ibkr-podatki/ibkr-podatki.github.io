@@ -45,10 +45,17 @@ export type ParsedCorporateAction = {
 	currency?: string;
 };
 
+/** Currencies that appear in trades/dividends, with calendar years of those cash flows (for NBP rates). */
+export type ParsedStatementCurrencyGroup = {
+	currency: string;
+	years: Array<string>;
+};
+
 export type ParsedStatement = {
 	dividends: Array<ParsedDividend>;
 	trades: Array<ParsedTrade>;
 	withholdingTax: Array<ParsedWithholdingTax>;
 	corporateActions: Array<ParsedCorporateAction>;
 	years: Array<string>;
+	currencies: Array<ParsedStatementCurrencyGroup>;
 };

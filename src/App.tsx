@@ -38,7 +38,7 @@ function App() {
 
 					{!!parsedStatement?.years?.length && (
 						<CalculateButton
-							years={parsedStatement.years}
+							currencies={parsedStatement.currencies}
 							onCurrenciesDataLoaded={setCurrenciesData}
 						/>
 					)}
@@ -78,7 +78,7 @@ function App() {
 					<Dividends
 						parsedDividends={parsedStatement.dividends}
 						parsedWitholdingTax={parsedStatement.withholdingTax}
-						currencyData={currenciesData[selectedYear]}
+						currencyDataByCode={currenciesData[selectedYear] ?? {}}
 						selectedYear={selectedYear}
 					/>
 				</>

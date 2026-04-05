@@ -17,7 +17,7 @@ type SymbolHistory = {
 // trades should be sorted by date
 export const getTradesHistory = (
 	trades: Array<Trade | StockSplit>,
-	currenciesData: Record<string, CurrencyData>
+	currenciesData: Record<string, Record<string, CurrencyData>>
 ): Array<TradeHistory> => {
 	const symbolsHistoryMap: { [symbol: string]: SymbolHistory } = {};
 	const tradesHistory: Array<TradeHistory> = [];
@@ -48,7 +48,9 @@ export const getTradesHistory = (
 
 		const tradeType = trade.quantity < 0 ? 'SELL' : 'BUY';
 		const year = getYearFromString(trade.date);
-		const currencyYearData = year ? currenciesData[year] : undefined;
+		const code = trade.currency ?? 'USD';
+		const currencyYearData =
+			year && currenciesData[year] ? currenciesData[year][code] : undefined;
 		const formattedTradeDate = new Date(trade.date).toISOString().slice(0, 10);
 		const currencyRate = currencyYearData
 			? getCurrencyForDate(formattedTradeDate, currencyYearData)

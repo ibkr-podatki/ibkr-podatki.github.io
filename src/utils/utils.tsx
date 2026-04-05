@@ -22,15 +22,6 @@ export const parseTicker = (text: string): string | undefined => {
 	return result ?? undefined;
 };
 
-export const fetchCurrencyData = async (
-	year: string,
-	currency: string = 'USD'
-): Promise<CurrencyData> => {
-	const url = `https://api.nbp.pl/api/exchangerates/rates/A/${currency}/${year}-01-01/${year}-12-31?format=json`;
-	const currencyDataResponse = await fetch(url);
-	return await currencyDataResponse.json();
-};
-
 // if no currency rate available for this day, take the previous one
 export const getCurrencyForDate = (
 	dateStr: string,

@@ -69,4 +69,5 @@ export type CurrencyData = {
 	table: string;
 };
 
-export type CurrencyYearData = { [year: string]: CurrencyData };
+/** NBP rates per calendar year and foreign currency code (e.g. year → USD → CurrencyData). */
+export type CurrencyYearData = { [year: string]: { [currency: string]: CurrencyData } };
