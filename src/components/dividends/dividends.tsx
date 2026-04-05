@@ -6,6 +6,7 @@ import type { ParsedDividend, ParsedWithholdingTax } from '../../parsers/types';
 import { getDividendsData } from '../../utils/get-dividends-data';
 import { calculateDeductableTax, calculateDividendTax, DIVIDEND_TAX_PERCENT } from './utils';
 import { NumberCell } from '../ui/table/cells/number-cell/number-cell';
+import { getNumberWithCurrency } from '../../utils/utils';
 
 type Props = {
 	selectedYear: string;
@@ -54,14 +55,13 @@ export const Dividends = ({
 
 	const dividendsTable = useMemo(() => {
 		return dividends.map(dividend => ({
-			Symbol: dividend.symbol,
-			Date: new Date(dividend.date).toLocaleDateString('pl-PL'),
-			'Amount before tax': `${(dividend.amount * dividend.currencyRate).toFixed(2)}zł (${dividend.amount.toFixed(2)} ${dividend.currency})`,
-			'Paid tax': `${(dividend.withheldTax * dividend.currencyRate).toFixed(2)}zł (${dividend.withheldTax.toFixed(2)} ${dividend.currency})`,
-			'Paid Tax %': `${dividend.taxPercentage}%`,
-			'Amount after tax': `${(dividend.amountAfterTax * dividend.currencyRate).toFixed(2)}zł (${dividend.amountAfterTax.toFixed(2)} ${dividend.currency})`,
-			'Currency Rate': `${dividend.currencyRate.toFixed(2)}`,
-			'To pay': `${calculateDividendTax(dividend).toFixed(2)}zł`
+			Ticker: dividend.symbol,
+			Data: new Date(dividend.date).toLocaleDateString('pl-PL'),
+			'Dochód do opodadtowania': `${getNumberWithCurrency(dividend.amount, dividend.currency, 2)} (${getNumberWithCurrency(dividend.amount * dividend.currencyRate, 'PLN', 2)})`,
+			'Zapłacony podatek': `${getNumberWithCurrency(dividend.withheldTax, dividend.currency, 2)} (${getNumberWithCurrency(dividend.withheldTax * dividend.currencyRate, 'PLN', 2)}) - ${dividend.taxPercentage}%`,
+			'Dochód po opodadtowaniu': `${getNumberWithCurrency(dividend.amountAfterTax, dividend.currency, 2)} (${getNumberWithCurrency(dividend.amountAfterTax * dividend.currencyRate, 'PLN', 2)})`,
+			'Kurs waluty': `${dividend.currencyRate.toFixed(2)}`,
+			'Do zapłaty': `${calculateDividendTax(dividend).toFixed(2)}zł`
 		}));
 	}, [dividends]);
 

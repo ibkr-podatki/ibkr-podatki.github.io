@@ -1,7 +1,15 @@
 import type { CurrencyData } from '../types';
 
 export const STOCKS_TAX_PERCENT = 0.19;
-export const DOUBLE_TAXATION_TREATY_PERCENT = 0.15;
+
+const CURRENCY_SYMBOLS: Record<string, string> = {
+	USD: '$',
+	PLN: 'zł',
+	GBP: '£',
+	EUR: '€'
+};
+
+const CURRENCIES_BEFORE_NUMBER = ['USD', 'GBP', 'EUR'];
 
 export const roundNumber = (number: number, numbersAfterComma: number = 0) => {
 	const factor = Math.pow(10, numbersAfterComma);
@@ -47,4 +55,20 @@ export const getCurrencyForDate = (
 	}
 
 	return currencyRate;
+};
+
+export const getNumberWithCurrency = (
+	number: number,
+	currency: string,
+	fractionDigits?: number
+): string => {
+	const negativeSymbol = number < 0 ? '-' : '';
+	const currencySymbol = CURRENCY_SYMBOLS[currency] ?? currency;
+	const numberString = Math.abs(number).toFixed(fractionDigits);
+
+	if (CURRENCIES_BEFORE_NUMBER.includes(currency)) {
+		return `${negativeSymbol}${currencySymbol}${numberString}`;
+	}
+
+	return `${negativeSymbol}${numberString}${currencySymbol}`;
 };

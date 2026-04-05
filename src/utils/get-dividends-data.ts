@@ -52,7 +52,7 @@ export const getDividendsData = (
 			withheldTax: roundNumber(withheldTax, 2),
 			amountAfterTax: roundNumber(dividend.amount - withheldTax, 2),
 			taxPercentage: Math.abs(roundNumber((withheldTax / dividend.amount) * 100)),
-			currency: dividend.currency,
+			currency: code,
 			currencyRate
 		};
 	});

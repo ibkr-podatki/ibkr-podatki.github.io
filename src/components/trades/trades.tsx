@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { CurrencyYearData } from '../../types';
-import { roundNumber, STOCKS_TAX_PERCENT } from '../../utils/utils';
+import { getNumberWithCurrency, STOCKS_TAX_PERCENT } from '../../utils/utils';
 import { getTradesHistory } from '../../utils/get-trades-history';
 import { Table } from '../ui/table/table';
 import { Spoiler } from '../ui/spoiler/spoiler';
@@ -70,9 +70,9 @@ export const Trades = ({
 		return yearTradesHistory
 			.filter(trade => trade.tradeType === 'SELL')
 			.map(trade => ({
-				Symbol: trade.symbol,
-				Date: new Date(trade.date).toLocaleDateString('pl-PL'),
-				'Profil/Loss': `${roundNumber(trade.taxData?.profit ?? 0, 2)} (${roundNumber(trade.taxData?.profitInLocalCurrency ?? 0, 2)}zł)`
+				Ticker: trade.symbol,
+				'Data sprzedaży': new Date(trade.date).toLocaleDateString('pl-PL'),
+				Dochód: `${getNumberWithCurrency(trade.taxData?.profit ?? 0, trade.currency, 2)} (${getNumberWithCurrency(trade.taxData?.profitInLocalCurrency ?? 0, 'PLN', 2)})`
 			}));
 	}, [yearTradesHistory]);
 

@@ -5,7 +5,7 @@ export type Dividend = {
 	withheldTax: number;
 	amountAfterTax: number;
 	taxPercentage: number;
-	currency?: string;
+	currency: string;
 	currencyRate: number;
 };
 
@@ -33,6 +33,7 @@ export function isStockSplit(value: object): value is StockSplit {
 export type TradeHistory = {
 	symbol: string;
 	date: string;
+	currency: string;
 	currencyRate: number;
 	tradeType: 'BUY' | 'SELL';
 	quantity: number;

@@ -1,7 +1,7 @@
 import type { Dividend } from '../../types';
-import { DOUBLE_TAXATION_TREATY_PERCENT } from '../../utils/utils';
 
 export const DIVIDEND_TAX_PERCENT = 0.19;
+export const DOUBLE_TAXATION_TREATY_PERCENT = 0.15;
 
 // we can't just subtract paid tax from total tax,
 // because paid tax can be more that 15% treaty to avoid double taxation

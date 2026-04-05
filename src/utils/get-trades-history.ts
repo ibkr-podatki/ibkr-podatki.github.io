@@ -102,6 +102,7 @@ export const getTradesHistory = (
 		tradesHistory.push({
 			symbol: trade.symbol,
 			date: trade.date,
+			currency: code,
 			currencyRate: currencyRate,
 			tradeType,
 			quantity: trade.quantity,
